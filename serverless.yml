@@ -18,6 +18,7 @@ provider:
   # these environment variables are made available to the lambda func under process.env
   environment:
     tableName: notes
+    stripeSecretKey: ${env:STRIPE_SECRET_KEY}
 
   # 'iamRoleStatements' defines the permissions policy for the Lambada
   # In this case the lambda has access to the DynamoDb.
@@ -96,3 +97,20 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+
+  billing:
+  # Defines an HTTP API endpoint that calls the main function in billing.js
+  # - path: url path is /billing
+  # - method: POST request
+    handler: billing.main
+    events:
+      - http:
+          path: billing
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+# Create our resources with separate CloudFormation templates
+resources:
+  # API Gateway Errors
+  - ${file(resources/api-gateway-errors.yml)}        
